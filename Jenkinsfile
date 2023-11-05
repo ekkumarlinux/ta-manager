@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        file(name: 'REPORT', description: 'Upload the Excel file')
+        stashedFile(name: 'REPORT', description: 'Upload the Excel file')
         string(name: 'Account_IDs', defaultValue: '', description: 'Enter the Account Numbers (comma-separated)')
     }
 
@@ -30,8 +30,9 @@ pipeline {
         stage('Copy Report File') {
             steps {
                 script {
-                    // Copy the uploaded file to the 'reports' directory
-                    sh "cp $REPORT reports/reports.xlsx"
+                    // Unstash the uploaded file and move it to the 'reports' directory
+                    unstash 'REPORT'
+                    sh 'mv REPORT reports/reports.xlsx'
                 }
             }
         }
@@ -63,23 +64,21 @@ pipeline {
                     }
 
                     // Check if the report file exists
-                    def reportFileExists = fileExists("reports/reports.xlsx")
+                    def reportFileExists = fileExists('reports/reports.xlsx')
                     if (!reportFileExists) {
                         error "The report file 'reports.xlsx' does not exist."
                     }
 
                     // Run your Python script to process the report file
-                    sh "python3 main.py reports/reports.xlsx $accountIDs"
+                    sh "python3 main.py reports.xlsx $accountIDs"
                 }
             }
         }
 
         stage('Archive Processed File') {
             steps {
-                script {
-                    // Archive the processed Excel file for download
-                    archiveArtifacts artifacts: "reports/reports.xlsx", onlyIfSuccessful: true
-                }
+                // Archive the processed Excel file for download
+                archiveArtifacts artifacts: 'reports/reports.xlsx', onlyIfSuccessful: true
             }
         }
     }
