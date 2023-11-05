@@ -30,9 +30,9 @@ pipeline {
         stage('Copy Report File') {
             steps {
                 script {
-                    // Unstash the uploaded file and move it to the 'reports' directory
+                    // Unstash the uploaded file and keep its original name
                     unstash 'REPORT'
-                    sh 'mv REPORT reports/reports.xlsx'
+                    sh 'mv REPORT reports/'
                 }
             }
         }
@@ -64,13 +64,13 @@ pipeline {
                     }
 
                     // Check if the report file exists
-                    def reportFileExists = fileExists('reports/reports.xlsx')
+                    def reportFileExists = fileExists('reports/REPORT')
                     if (!reportFileExists) {
-                        error "The report file 'reports.xlsx' does not exist."
+                        error "The uploaded report file does not exist."
                     }
 
                     // Run your Python script to process the report file
-                    sh "python3 main.py reports.xlsx $accountIDs"
+                    sh "python3 main.py reports/REPORT $accountIDs"
                 }
             }
         }
@@ -78,7 +78,7 @@ pipeline {
         stage('Archive Processed File') {
             steps {
                 // Archive the processed Excel file for download
-                archiveArtifacts artifacts: 'reports/reports.xlsx', onlyIfSuccessful: true
+                archiveArtifacts artifacts: 'reports/REPORT', onlyIfSuccessful: true
             }
         }
     }
