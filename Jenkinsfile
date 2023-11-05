@@ -12,7 +12,7 @@ pipeline {
                 script {
                     // Checkout the code from the GitHub repository
                     dir("Report-Manager") {
-                        git branch: 'master', credentialsId: 'ekkumarlinux', url: 'https://github.com/ekkumarlinux/ta-report.git'
+                        git branch: 'main', url: 'https://github.com/ekkumarlinux/ta-manager.git'
                     }
                 }
             }
