@@ -31,7 +31,8 @@ pipeline {
             steps {
                 script {
                     // Unstash the uploaded file and maintain its original name
-                    sh 'mv $REPORT reports/'
+                    def originalFileName = sh(returnStdout: true, script: 'basename $REPORT')
+                    sh "mv $REPORT reports/$originalFileName"
                 }
             }
         }
