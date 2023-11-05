@@ -31,7 +31,7 @@ pipeline {
             steps {
                 script {
                     // Copy the uploaded file to the 'reports' directory
-                    sh 'cp $REPORT reports/'
+                    sh "cp $REPORT reports/reports.xlsx"
                 }
             }
         }
@@ -63,13 +63,13 @@ pipeline {
                     }
 
                     // Check if the report file exists
-                    def reportFileExists = fileExists("reports/$REPORT")
+                    def reportFileExists = fileExists("reports/reports.xlsx")
                     if (!reportFileExists) {
-                        error "The report file '$REPORT' does not exist."
+                        error "The report file 'reports.xlsx' does not exist."
                     }
 
                     // Run your Python script to process the report file
-                    sh "python3 main.py reports/$REPORT $accountIDs"
+                    sh "python3 main.py reports/reports.xlsx $accountIDs"
                 }
             }
         }
@@ -78,7 +78,7 @@ pipeline {
             steps {
                 script {
                     // Archive the processed Excel file for download
-                    archiveArtifacts artifacts: "reports/*", onlyIfSuccessful: true
+                    archiveArtifacts artifacts: "reports/reports.xlsx", onlyIfSuccessful: true
                 }
             }
         }
