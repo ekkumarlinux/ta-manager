@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        stashedFile(name: 'REPORT', description: 'Upload the Excel file')
+        file(name: 'REPORT', description: 'Upload the Excel file')
         string(name: 'Account_IDs', defaultValue: '', description: 'Enter the Account Numbers (comma-separated)')
     }
 
@@ -30,9 +30,8 @@ pipeline {
         stage('Copy Report File') {
             steps {
                 script {
-                    // Unstash the uploaded file and maintain its original name
-                    def originalFileName = sh(returnStdout: true, script: 'basename $REPORT')
-                    sh "mv $REPORT reports/$originalFileName"
+                    // Copy the uploaded file to the 'reports' directory
+                    sh 'cp $REPORT reports/'
                 }
             }
         }
@@ -64,14 +63,13 @@ pipeline {
                     }
 
                     // Check if the report file exists
-                    def originalFileName = sh(returnStdout: true, script: 'basename $REPORT')
-                    def reportFileExists = fileExists("reports/$originalFileName")
+                    def reportFileExists = fileExists("reports/$REPORT")
                     if (!reportFileExists) {
-                        error "The report file '$originalFileName' does not exist."
+                        error "The report file '$REPORT' does not exist."
                     }
 
                     // Run your Python script to process the report file
-                    sh "python3 main.py reports/$originalFileName $accountIDs"
+                    sh "python3 main.py reports/$REPORT $accountIDs"
                 }
             }
         }
